@@ -1,0 +1,255 @@
+openapi: 3.0.1
+info:
+  title: Todo-Listen-Verwaltung
+  description: ""
+  contact:
+    email: wichmann@bbs-os-brinkstr.de
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0
+servers:
+- url: http://127.0.0.1:5000/
+tags:
+- name: Todo-Listen-Verwaltung
+paths:
+  /todo-list:
+    get:
+      tags:
+      - Todo-Listen-Verwaltung
+      summary: Liefert alle Todo-Listen zurueck
+      operationId: getTodoLists
+      responses:
+        '200':
+          description: Bei erfolgreichem Abruf
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoList'
+        '405':
+          description: Ungueltige Methode auf bestehendem Endpunkt
+        '429':
+          description: Zu viele Anfragen
+        '500':
+          description: Server-Fehler
+        '502':
+          description: Ungueltiger Endpunkt
+    post:
+      tags:
+      - Todo-Listen-Verwaltung
+      summary: Fuegt eine neue Todo-Liste hinzu
+      operationId: createTodoList
+      requestBody:
+        description: JSON-Objekt mit Name der Liste
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoListCreate'
+        required: true
+      responses:
+        '201':
+          description: Bei erfolgreichem Erstellen
+        '400':
+          description: Bei ungueltigem Body
+        '405':
+          description: Ungueltige Methode auf bestehendem Endpunkt
+        '429':
+          description: Zu viele Anfragen
+        '500':
+          description: Server-Fehler
+        '502':
+          description: Ungueltiger Endpunkt
+  /todo-list/{list_id}:
+    get:
+      tags:
+      - Todo-Listen-Verwaltung
+      summary: Liefert alle Eintraege einer Todo-Liste zurueck
+      operationId: getTodoListEntries
+      parameters:
+      - name: list_id
+        in: path
+        description: ID der gewuenschten Liste
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Bei erfolgreichem Abruf
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoEntry'
+        '404':
+          description: Bei ungueltiger ID
+        '405':
+          description: Ungueltige Methode auf bestehendem Endpunkt
+        '429':
+          description: Zu viele Anfragen
+        '500':
+          description: Server-Fehler
+        '502':
+          description: Ungueltiger Endpunkt
+    delete:
+      tags:
+      - Todo-Listen-Verwaltung
+      summary: Loescht eine komplette Todo-Liste mit allen Eintraegen
+      operationId: deleteTodoList
+      parameters:
+      - name: list_id
+        in: path
+        description: ID der gewuenschten Liste
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Bei erfolgreichem Loeschen
+        '404':
+          description: Bei ungueltiger ID
+        '405':
+          description: Ungueltige Methode auf bestehendem Endpunkt
+        '429':
+          description: Zu viele Anfragen
+        '500':
+          description: Server-Fehler
+        '502':
+          description: Ungueltiger Endpunkt
+    post:
+      tags:
+      - Todo-Listen-Verwaltung
+      summary: Fuegt einen Eintrag zu einer bestehenden Todo-Liste hinzu
+      operationId: createTodoEntry
+      parameters:
+      - name: list_id
+        in: path
+        description: ID der gewuenschten Liste
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: JSON-Objekt mit Name und Beschreibung
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoEntryCreate'
+        required: true
+      responses:
+        '201':
+          description: Bei erfolgreichem Erstellen
+        '400':
+          description: Bei ungueltigem Body
+        '404':
+          description: Bei ungueltiger ID
+        '405':
+          description: Ungueltige Methode auf bestehendem Endpunkt
+        '429':
+          description: Zu viele Anfragen
+        '500':
+          description: Server-Fehler
+        '502':
+          description: Ungueltiger Endpunkt
+  /todo-list/entry/{entry_id}:
+    patch:
+      tags:
+      - Todo-Listen-Verwaltung
+      summary: Aktualisiert einen bestehenden Eintrag
+      operationId: updateTodoEntry
+      parameters:
+      - name: entry_id
+        in: path
+        description: ID des gewuenschten Eintrags
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: JSON-Objekt mit Name und Beschreibung
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoEntryUpdate'
+        required: true
+      responses:
+        '200':
+          description: Bei erfolgreichem Aendern
+        '400':
+          description: Bei ungueltigem Body
+        '404':
+          description: Bei ungueltiger ID
+        '405':
+          description: Ungueltige Methode auf bestehendem Endpunkt
+        '429':
+          description: Zu viele Anfragen
+        '500':
+          description: Server-Fehler
+        '502':
+          description: Ungueltiger Endpunkt
+    delete:
+      tags:
+      - Todo-Listen-Verwaltung
+      summary: Loescht einen einzelnen Eintrag einer Todo-Liste
+      operationId: deleteTodoEntry
+      parameters:
+      - name: entry_id
+        in: path
+        description: ID des gewuenschten Eintrags
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Bei erfolgreichem Loeschen
+        '404':
+          description: Bei ungueltiger ID
+        '405':
+          description: Ungueltige Methode auf bestehendem Endpunkt
+        '429':
+          description: Zu viele Anfragen
+        '500':
+          description: Server-Fehler
+        '502':
+          description: Ungueltiger Endpunkt
+components:
+  schemas:
+    TodoListCreate:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+    TodoEntryCreate:
+      type: object
+      required:
+      - name
+      - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    TodoEntryUpdate:
+      type: object
+      required:
+      - name
+      - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    TodoList:
+      type: object
+      properties:
+        name:
+          type: string
+    TodoEntry:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string

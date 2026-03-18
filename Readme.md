@@ -1,0 +1,1 @@
+Readme file for the Flask Server Project from School.
