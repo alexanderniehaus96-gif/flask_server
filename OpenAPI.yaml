@@ -27,15 +27,11 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TodoList'
+                  $ref: '#/components/schemas/TodoListResponse'
         '405':
           description: Ungueltige Methode auf bestehendem Endpunkt
-        '429':
-          description: Zu viele Anfragen
         '500':
           description: Server-Fehler
-        '502':
-          description: Ungueltiger Endpunkt
     post:
       tags:
       - Todo-Listen-Verwaltung
@@ -51,16 +47,16 @@ paths:
       responses:
         '201':
           description: Bei erfolgreichem Erstellen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoListResponse'
         '400':
           description: Bei ungueltigem Body
         '405':
           description: Ungueltige Methode auf bestehendem Endpunkt
-        '429':
-          description: Zu viele Anfragen
         '500':
           description: Server-Fehler
-        '502':
-          description: Ungueltiger Endpunkt
   /todo-list/{list_id}:
     get:
       tags:
@@ -82,17 +78,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TodoEntry'
+                  $ref: '#/components/schemas/TodoEntryResponse'
         '404':
           description: Bei ungueltiger ID
         '405':
           description: Ungueltige Methode auf bestehendem Endpunkt
-        '429':
-          description: Zu viele Anfragen
         '500':
           description: Server-Fehler
-        '502':
-          description: Ungueltiger Endpunkt
     delete:
       tags:
       - Todo-Listen-Verwaltung
@@ -112,12 +104,8 @@ paths:
           description: Bei ungueltiger ID
         '405':
           description: Ungueltige Methode auf bestehendem Endpunkt
-        '429':
-          description: Zu viele Anfragen
         '500':
           description: Server-Fehler
-        '502':
-          description: Ungueltiger Endpunkt
     post:
       tags:
       - Todo-Listen-Verwaltung
@@ -140,18 +128,18 @@ paths:
       responses:
         '201':
           description: Bei erfolgreichem Erstellen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoEntryResponse'
         '400':
           description: Bei ungueltigem Body
         '404':
           description: Bei ungueltiger ID
         '405':
           description: Ungueltige Methode auf bestehendem Endpunkt
-        '429':
-          description: Zu viele Anfragen
         '500':
           description: Server-Fehler
-        '502':
-          description: Ungueltiger Endpunkt
   /todo-list/entry/{entry_id}:
     patch:
       tags:
@@ -175,18 +163,18 @@ paths:
       responses:
         '200':
           description: Bei erfolgreichem Aendern
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoEntryResponse'
         '400':
           description: Bei ungueltigem Body
         '404':
           description: Bei ungueltiger ID
         '405':
           description: Ungueltige Methode auf bestehendem Endpunkt
-        '429':
-          description: Zu viele Anfragen
         '500':
           description: Server-Fehler
-        '502':
-          description: Ungueltiger Endpunkt
     delete:
       tags:
       - Todo-Listen-Verwaltung
@@ -206,12 +194,8 @@ paths:
           description: Bei ungueltiger ID
         '405':
           description: Ungueltige Methode auf bestehendem Endpunkt
-        '429':
-          description: Zu viele Anfragen
         '500':
           description: Server-Fehler
-        '502':
-          description: Ungueltiger Endpunkt
 components:
   schemas:
     TodoListCreate:
@@ -241,15 +225,29 @@ components:
           type: string
         description:
           type: string
-    TodoList:
+    TodoListResponse:
       type: object
+      required:
+      - id
+      - name
       properties:
+        id:
+          type: string
         name:
           type: string
-    TodoEntry:
+    TodoEntryResponse:
       type: object
+      required:
+      - id
+      - name
+      - description
+      - list
       properties:
+        id:
+          type: string
         name:
           type: string
         description:
+          type: string
+        list:
           type: string

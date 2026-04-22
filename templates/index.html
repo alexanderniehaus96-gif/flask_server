@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo-Server</title>
+    <style>
+        body {
+            margin: 2rem;
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            max-width: 700px;
+        }
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+        button {
+            margin-top: 0.75rem;
+            padding: 0.4rem 0.7rem;
+        }
+        ul {
+            padding-left: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Todo-Server</h1>
+
+    <button id="load-btn" type="button">Listen laden</button>
+    <ul id="todo-lists"></ul>
+
+    <script>
+        const loadButton = document.getElementById('load-btn');
+        const listContainer = document.getElementById('todo-lists');
+
+        loadButton.addEventListener('click', async () => {
+            listContainer.innerHTML = '';
+
+            try {
+                const response = await fetch('/todo-list');
+                if (!response.ok) {
+                    throw new Error('API-Fehler: ' + response.status);
+                }
+
+                const lists = await response.json();
+                if (!Array.isArray(lists) || lists.length === 0) {
+                    listContainer.innerHTML = '<li>Keine Listen vorhanden.</li>';
+                    return;
+                }
+
+                for (const item of lists) {
+                    const li = document.createElement('li');
+                    li.textContent = item.name + ' (' + item.id + ')';
+                    listContainer.appendChild(li);
+                }
+            } catch (error) {
+                listContainer.innerHTML = '<li>Konnte Listen nicht laden.</li>';
+            }
+        });
+    </script>
+</body>
+</html>
