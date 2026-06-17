@@ -14,7 +14,7 @@ Der Server erfüllt folgende Anforderungen:
 * SSH-Zugriff für Administration
 * Deployment der Web-App als Docker-Container
 * automatische Wiederherstellung nach einem Neustart
-* vollständige Dokumentation der Einrichtung
+* vollständige Dokumentation der Einrichtung im Git-Repository
 
 ## 2. Verwendete Umgebung
 
@@ -355,9 +355,17 @@ README.md
 templates/
 ```
 
-## 12. Dockerfile
+## 12. Dockerfile erstellen oder prüfen
 
-Für das Deployment wird ein Dockerfile verwendet.
+Für das Deployment wird im Projektordner ein Dockerfile benötigt.
+
+Falls das `Dockerfile` noch nicht vorhanden ist, wird es erstellt.
+
+```bash
+nano Dockerfile
+```
+
+Inhalt des Dockerfiles:
 
 ```dockerfile
 FROM python:3.12-slim
@@ -496,7 +504,7 @@ http://192.168.24.113:5000/
 
 Die Seite war im Browser erreichbar. Damit ist bestätigt, dass die Portweiterleitung funktioniert und die Web-App auch außerhalb der VM erreichbar ist.
 
-## 19. Neustart-Test
+## 19. Neustart-Test durchführen
 
 Das System wurde neu gestartet.
 
@@ -526,95 +534,30 @@ curl http://localhost:5000/
 
 Damit ist bestätigt, dass die Anwendung auch nach einem Neustart wieder verfügbar ist.
 
-## 20. Nützliche Docker-Befehle zur Verwaltung
+## 20. README.md erstellen oder aktualisieren
 
-Container stoppen:
-
-```bash
-sudo docker stop flask-server
-```
-
-Container starten:
+Die Dokumentation wird als `README.md` im Projektordner abgelegt.
 
 ```bash
-sudo docker start flask-server
+cd ~/flask_server
+nano README.md
 ```
 
-Container entfernen:
+Nach dem Bearbeiten wird die Datei gespeichert mit:
 
-```bash
-sudo docker rm flask-server
+```text
+Strg + O
+Enter
+Strg + X
 ```
 
-Logs anzeigen:
+Die Datei `README.md` enthält die vollständige Dokumentation der Servereinrichtung, der Netzwerkkonfiguration, der Benutzerverwaltung, der SSH-Einrichtung und des Docker-Deployments.
 
-```bash
-sudo docker logs flask-server
-```
+## 21. Änderungen für die Abgabe ins GitHub-Repository übertragen
 
-Image neu bauen:
+Damit das GitHub-Repository alle für das Deployment notwendigen Dateien enthält, werden die neu erstellten beziehungsweise angepassten Dateien in das Repository übertragen.
 
-```bash
-sudo docker build -t flask-server .
-```
-
-Container neu erstellen:
-
-```bash
-sudo docker stop flask-server
-sudo docker rm flask-server
-sudo docker run -p 5000:5000 -d --restart unless-stopped --name flask-server flask-server
-```
-
-## 21. Nützliche Netzwerkbefehle
-
-IP-Adressen anzeigen:
-
-```bash
-hostname -I
-```
-
-Alle Netzwerkinterfaces anzeigen:
-
-```bash
-ip a
-```
-
-Routing-Tabelle anzeigen:
-
-```bash
-ip route
-```
-
-DNS-Status anzeigen:
-
-```bash
-resolvectl status
-```
-
-Netplan-Konfiguration bearbeiten:
-
-```bash
-sudo nano /etc/netplan/01-network-manager-all.yaml
-```
-
-Netplan-Dateirechte korrigieren:
-
-```bash
-sudo chmod 600 /etc/netplan/01-network-manager-all.yaml
-```
-
-Netplan-Konfiguration anwenden:
-
-```bash
-sudo netplan apply
-```
-
-## 22. Änderungen ins GitHub-Repository übertragen
-
-Damit das GitHub-Repository alle für das Deployment notwendigen Dateien enthält, wurden die neu erstellten beziehungsweise angepassten Dateien in das Repository übertragen.
-
-Zuerst wurde im Projektordner der Git-Status geprüft.
+Zuerst wird im Projektordner der Git-Status geprüft.
 
 ```bash
 cd ~/flask_server
@@ -628,73 +571,67 @@ git config --global user.name "Alexander Niehaus"
 git config --global user.email "alexanderniehaus96@gmail.com"
 ```
 
-Anschließend wurden die geänderten Dateien zum Commit hinzugefügt.
+Anschließend werden die geänderten Dateien zum Commit hinzugefügt.
 
 ```bash
 git add Dockerfile README.md
 ```
 
-Der Commit wurde erstellt mit:
+Der Commit wird erstellt mit:
 
 ```bash
 git commit -m "Dockerfile und Deployment-Dokumentation hinzugefuegt"
 ```
 
-Da GitHub bei Git-Operationen über HTTPS kein normales Passwort mehr akzeptiert, wurde für den direkten Zugriff von der VM auf GitHub ein SSH-Key erstellt.
+Da GitHub bei Git-Operationen über HTTPS kein normales Passwort mehr akzeptiert, wird für den direkten Zugriff von der VM auf GitHub ein SSH-Key erstellt.
 
 ```bash
 ssh-keygen -t ed25519 -C "alexanderniehaus96@gmail.com"
 ```
 
-Der öffentliche Schlüssel wurde anschließend angezeigt.
+Der öffentliche Schlüssel wird anschließend angezeigt.
 
 ```bash
 cat ~/.ssh/id_ed25519.pub
 ```
 
-Dieser öffentliche Schlüssel wurde im GitHub-Konto unter folgendem Menüpunkt hinterlegt:
+Dieser öffentliche Schlüssel wird im GitHub-Konto unter folgendem Menüpunkt hinterlegt:
 
 ```text
 GitHub → Settings → SSH and GPG keys → New SSH key
 ```
 
-Danach wurde das Git-Repository von HTTPS auf SSH umgestellt.
+Danach wird das Git-Repository von HTTPS auf SSH umgestellt.
 
 ```bash
 git remote set-url origin git@github.com:alexanderniehaus96-gif/flask_server.git
 ```
 
-Die SSH-Verbindung zu GitHub wurde getestet.
+Die SSH-Verbindung zu GitHub wird getestet.
 
 ```bash
 ssh -T git@github.com
 ```
 
-Beim ersten Verbindungsaufbau wurde GitHub als bekannter Host bestätigt.
+Beim ersten Verbindungsaufbau wird GitHub als bekannter Host bestätigt.
 
 ```text
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 ```
 
-Die erfolgreiche Ausgabe lautete sinngemäß:
+Die erfolgreiche Ausgabe lautet sinngemäß:
 
 ```text
 Hi alexanderniehaus96-gif/flask_server! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
-Beim ersten `git push` wurde der Push abgelehnt, weil im entfernten Repository bereits Änderungen vorhanden waren, die lokal noch nicht vorhanden waren.
-
-```text
-! [rejected] main -> main (fetch first)
-```
-
-Deshalb wurden zuerst die entfernten Änderungen übernommen.
+Falls der erste `git push` abgelehnt wird, weil im entfernten Repository bereits Änderungen vorhanden sind, werden zuerst die entfernten Änderungen übernommen.
 
 ```bash
 git pull --rebase origin main
 ```
 
-Anschließend konnten die lokalen Änderungen in das GitHub-Repository übertragen werden.
+Anschließend werden die lokalen Änderungen in das GitHub-Repository übertragen.
 
 ```bash
 git push
@@ -702,7 +639,7 @@ git push
 
 Damit befinden sich die Deployment-Dateien, insbesondere `Dockerfile` und `README.md`, im GitHub-Repository.
 
-## 23. Finaler Testablauf
+## 22. Finaler Testablauf
 
 Folgende Befehle dienen als abschließender Nachweis.
 
@@ -766,7 +703,91 @@ Web-App im Browser testen:
 http://192.168.24.113:5000/
 ```
 
-## 24. Ergebnis
+## 23. Nützliche Docker-Befehle
+
+Container stoppen:
+
+```bash
+sudo docker stop flask-server
+```
+
+Container starten:
+
+```bash
+sudo docker start flask-server
+```
+
+Container entfernen:
+
+```bash
+sudo docker rm flask-server
+```
+
+Logs anzeigen:
+
+```bash
+sudo docker logs flask-server
+```
+
+Image neu bauen:
+
+```bash
+sudo docker build -t flask-server .
+```
+
+Container neu erstellen:
+
+```bash
+sudo docker stop flask-server
+sudo docker rm flask-server
+sudo docker run -p 5000:5000 -d --restart unless-stopped --name flask-server flask-server
+```
+
+## 24. Nützliche Netzwerkbefehle
+
+IP-Adressen anzeigen:
+
+```bash
+hostname -I
+```
+
+Alle Netzwerkinterfaces anzeigen:
+
+```bash
+ip a
+```
+
+Routing-Tabelle anzeigen:
+
+```bash
+ip route
+```
+
+DNS-Status anzeigen:
+
+```bash
+resolvectl status
+```
+
+Netplan-Konfiguration bearbeiten:
+
+```bash
+sudo nano /etc/netplan/01-network-manager-all.yaml
+```
+
+Netplan-Dateirechte korrigieren:
+
+```bash
+sudo chmod 600 /etc/netplan/01-network-manager-all.yaml
+```
+
+Netplan-Konfiguration anwenden:
+
+```bash
+sudo netplan apply
+```
+
+## 25. Ergebnis
 
 Die Flask-Web-App wurde erfolgreich als Docker-Container auf dem Linux-System bereitgestellt.
 
