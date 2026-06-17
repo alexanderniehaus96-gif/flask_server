@@ -6,7 +6,7 @@ Ziel der Aufgabe ist die Einrichtung eines Linux-Servers und das Deployment eine
 
 Die Web-App basiert auf einer OpenAPI-Spezifikation und einer Python-Implementierung mit Flask. Die Anwendung wird aus einem Git-Repository geladen, in einem Docker-Image verpackt und anschließend als Container auf dem Linux-System ausgeführt.
 
-Der Server soll folgende Anforderungen erfüllen:
+Der Server erfüllt folgende Anforderungen:
 
 * statische IP-Adresse im lokalen Netzwerk
 * lokaler Benutzer `willi` ohne Administratorrechte
@@ -39,21 +39,21 @@ FlaskServer.py
 OpenAPI.yaml
 requirements.txt
 Dockerfile
-Readme.md
+README.md
 templates/
 ```
 
 Finale Netzwerkdaten im Schulnetzwerk:
 
 ```text
-Interface:      enp0s3
-Statische IP:   192.168.24.113/24
-Gateway:        192.168.24.254
-DNS-Server:     172.28.28.3
-Alternativer DNS-Server: 8.8.8.8
+Interface:                 enp0s3
+Statische IP-Adresse:      192.168.24.113/24
+Gateway:                   192.168.24.254
+DNS-Server:                172.28.28.3
+Alternativer DNS-Server:   8.8.8.8
 ```
 
-Die Web-App ist im Schulnetz erreichbar unter:
+Die Web-App ist im Schulnetzwerk erreichbar unter:
 
 ```text
 http://192.168.24.113:5000/
@@ -78,7 +78,7 @@ Erläuterung:
 
 * `curl` wird zum Testen der Web-App verwendet.
 * `nano` wird zum Bearbeiten von Konfigurationsdateien im Terminal genutzt.
-* `git` wird zum Klonen des Projekt-Repositorys verwendet.
+* `git` wird zum Klonen und Verwalten des Git-Repositorys verwendet.
 * `net-tools` stellt zusätzliche Netzwerkwerkzeuge bereit.
 * `openssh-server` ermöglicht den SSH-Zugriff auf den Server.
 
@@ -131,6 +131,12 @@ groups fernzugriff
 ```
 
 In der Ausgabe muss die Gruppe `sudo` enthalten sein.
+
+Beispiel:
+
+```text
+fernzugriff : fernzugriff sudo
+```
 
 Für den Benutzer `willi` wurde ein Testpasswort gesetzt, damit der Benutzer während der Prüfung verwendet werden kann.
 
@@ -271,6 +277,7 @@ ping archive.ubuntu.com
 ```
 
 `ping 8.8.8.8` prüft die Internetverbindung.
+
 `ping archive.ubuntu.com` prüft zusätzlich die DNS-Auflösung.
 
 Die Ping-Befehle können mit `Strg + C` beendet werden.
@@ -344,7 +351,7 @@ FlaskServer.py
 OpenAPI.yaml
 requirements.txt
 Dockerfile
-Readme.md
+README.md
 templates/
 ```
 
@@ -379,6 +386,14 @@ Erläuterung:
 * `CMD ["python", "FlaskServer.py"]` startet die Flask-Anwendung.
 
 Die Python-Abhängigkeiten werden nicht direkt auf dem Ubuntu-System installiert, sondern beim Bauen des Docker-Images innerhalb des Images.
+
+Wichtig ist außerdem, dass die Flask-Anwendung im Python-Code auf `0.0.0.0` und Port `5000` lauscht, damit sie aus dem Container heraus erreichbar ist.
+
+Beispiel:
+
+```python
+app.run(host="0.0.0.0", port=5000)
+```
 
 ## 13. Docker-Image bauen
 
@@ -595,9 +610,103 @@ Netplan-Konfiguration anwenden:
 sudo netplan apply
 ```
 
-## 22. Finaler Testablauf
+## 22. Änderungen ins GitHub-Repository übertragen
 
-Folgende Befehle dienen als abschließender Nachweis:
+Damit das GitHub-Repository alle für das Deployment notwendigen Dateien enthält, wurden die neu erstellten beziehungsweise angepassten Dateien in das Repository übertragen.
+
+Zuerst wurde im Projektordner der Git-Status geprüft.
+
+```bash
+cd ~/flask_server
+git status
+```
+
+Falls Git noch keinen Namen und keine E-Mail-Adresse für Commits kennt, müssen diese einmalig gesetzt werden.
+
+```bash
+git config --global user.name "Alexander Niehaus"
+git config --global user.email "alexanderniehaus96@gmail.com"
+```
+
+Anschließend wurden die geänderten Dateien zum Commit hinzugefügt.
+
+```bash
+git add Dockerfile README.md
+```
+
+Der Commit wurde erstellt mit:
+
+```bash
+git commit -m "Dockerfile und Deployment-Dokumentation hinzugefuegt"
+```
+
+Da GitHub bei Git-Operationen über HTTPS kein normales Passwort mehr akzeptiert, wurde für den direkten Zugriff von der VM auf GitHub ein SSH-Key erstellt.
+
+```bash
+ssh-keygen -t ed25519 -C "alexanderniehaus96@gmail.com"
+```
+
+Der öffentliche Schlüssel wurde anschließend angezeigt.
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Dieser öffentliche Schlüssel wurde im GitHub-Konto unter folgendem Menüpunkt hinterlegt:
+
+```text
+GitHub → Settings → SSH and GPG keys → New SSH key
+```
+
+Danach wurde das Git-Repository von HTTPS auf SSH umgestellt.
+
+```bash
+git remote set-url origin git@github.com:alexanderniehaus96-gif/flask_server.git
+```
+
+Die SSH-Verbindung zu GitHub wurde getestet.
+
+```bash
+ssh -T git@github.com
+```
+
+Beim ersten Verbindungsaufbau wurde GitHub als bekannter Host bestätigt.
+
+```text
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+```
+
+Die erfolgreiche Ausgabe lautete sinngemäß:
+
+```text
+Hi alexanderniehaus96-gif/flask_server! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+Beim ersten `git push` wurde der Push abgelehnt, weil im entfernten Repository bereits Änderungen vorhanden waren, die lokal noch nicht vorhanden waren.
+
+```text
+! [rejected] main -> main (fetch first)
+```
+
+Deshalb wurden zuerst die entfernten Änderungen übernommen.
+
+```bash
+git pull --rebase origin main
+```
+
+Anschließend konnten die lokalen Änderungen in das GitHub-Repository übertragen werden.
+
+```bash
+git push
+```
+
+Damit befinden sich die Deployment-Dateien, insbesondere `Dockerfile` und `README.md`, im GitHub-Repository.
+
+## 23. Finaler Testablauf
+
+Folgende Befehle dienen als abschließender Nachweis.
+
+IP-Adresse prüfen:
 
 ```bash
 hostname -I
@@ -657,7 +766,7 @@ Web-App im Browser testen:
 http://192.168.24.113:5000/
 ```
 
-## 23. Ergebnis
+## 24. Ergebnis
 
 Die Flask-Web-App wurde erfolgreich als Docker-Container auf dem Linux-System bereitgestellt.
 
@@ -678,6 +787,7 @@ Erfüllte Anforderungen:
 * Web-App lokal per `curl` erreichbar
 * Web-App vom Host-System im Browser erreichbar
 * Funktion nach Neustart geprüft
+* Dockerfile und Dokumentation in das GitHub-Repository übertragen
 
 Die Anwendung ist im Schulnetzwerk erreichbar unter:
 
